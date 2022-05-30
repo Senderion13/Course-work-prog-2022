@@ -1,0 +1,13 @@
+﻿  MyCompany.cpp
+  The contents of <format> are available only in c++latest mode with concepts support;
+  see https://github.com/microsoft/STL/issues/1814 for details.
+C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyODBC.cpp(271,30): warning C4244: инициализация: преобразование "time_t" в "int", возможна потеря данных
+C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyODBC.cpp(668,37): warning C4101: csbInfo: неиспользованная локальная переменная
+C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyCompany.cpp(77,36): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyCompany.cpp(260,40): warning C4129: `: неизвестная escape-последовательность
+  Создание кода
+  2 of 251 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Создание кода завершено
+  MyCompany.vcxproj -> C:\Users\Andrey\Desktop\MyCompany\x64\Release\MyCompany.exe
