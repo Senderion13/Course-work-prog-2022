@@ -1,7 +1,7 @@
 #define MENU_FIRST_ITEM mDevices
 #define MENU_ITEMS_COUNT 5
 #include "MyMenu.cpp"
-
+/* Menu functions */
 void exitProgram(Menu_Item_t* current_item);
 void drawDevices(Menu_Item_t* current_item);
 void drawUsersWithWait(Menu_Item_t* current_item);
@@ -14,7 +14,7 @@ void drawReportsSortBySupplyDate(Menu_Item_t* current_item);
 void drawReportsCostRemainder(Menu_Item_t* current_item);
 void drawReportsUserInfo(Menu_Item_t* current_item);
 void drawAbout(Menu_Item_t* current_item);
-
+/* Menu elements */
 MENU_ITEM(mDevices, mLists, NULL_MENU, NULL_MENU, NULL_MENU, L"Devices", L"Список устройств", &drawDevices);
 MENU_ITEM(mLists, mReports, mDevices, NULL_MENU, mListsBack, L"Lists", L"Допольнительные списки", NULL);
 	MENU_ITEM(mListsBack, mListsUsers, NULL_MENU, mLists, mDevices, L"", L"Назад", NULL);

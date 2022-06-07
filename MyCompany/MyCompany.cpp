@@ -1,10 +1,8 @@
 ﻿#include <iostream>
-#include <format>
-#include <string>
 #include "menuitems.cpp"
 #include "MyODBC.cpp"
 
-#define WINDOW_HEIGHT 50
+#define WINDOW_HEIGHT 40
 #define WINDOW_WIDTH 200
 #define MENU_HEADER_TEXT L"MAIN MENU"
 using namespace std;
@@ -19,6 +17,7 @@ struct MenuPositionInfo {
 };
 
 MenuPositionInfo lastPosition;
+
 void wait() {
 	int currkey;
 	while (1) {
@@ -30,16 +29,56 @@ void wait() {
 	}
 }
 
-int getMenuItemsCount() {
-	Menu_Item_t* item = CurrentMenu;
-	int menuCount = 0;
+bool checkDecimal(string ID) {
+	bool repeat;
+	if (ID == "Q" || ID == "q") return true;
 	do {
-		menuCount++;
-	} while ((item = item->Next) != &NULL_MENU);
-	return menuCount;
+		repeat = false;
+		try {
+			stoi(ID);
+		}
+		catch (exception) {
+			repeat = true;
+			wprintf(L"Wrong data! Please, try again\n\nEnter device id: ");
+			std::getline(cin, ID);
+			if (ID == "Q" || ID == "q") return true;
+		}
+	} while (repeat);
 }
 
-void clearArea(int start, int count) {
+void checkDate(wchar_t* date) {
+	bool repeat = false;
+	do {
+		repeat = false;
+		if (wcslen(date) != 10) {
+			wprintf(L"Wrong date!\ncode: symbols must be 10\nPlease, try again\n\nEnter supply date: ");
+			wcin.getline(date, 10);
+			repeat = true;
+			continue;
+		}
+		for (int i = 0; i < 10; i++)
+		{
+			if (i == 4 || i == 7) {
+				if (date[i] != 45) {
+					wprintf(L"Wrong date!\ncode: use \"-\" like date separator\nPlease, try again\n\nEnter supply date: ");
+					wcin.getline(date, 10);
+					repeat = true;
+					continue;
+				}
+			}
+			else {
+				if (date[i] < 48 || date[i] > 57) {
+					wprintf(L"Wrong date!\ncode: wrong digits\nPlease, try again\n\nEnter supply date: ");
+					wcin.getline(date, 10);
+					repeat = true;
+					continue;
+				}
+			}
+		}
+	} while (repeat);
+}
+
+void clearArea(int startX, int startY, int count) {
 	SetConsoleTextAttribute(hConsole, 0);
 	char blank[MENU_TEXT_SIZE + 3];
 	for (int i = 0; i < MENU_TEXT_SIZE + 2; i++)
@@ -49,14 +88,14 @@ void clearArea(int start, int count) {
 	blank[MENU_TEXT_SIZE + 2] = 0;
 	for (int i = 0; i < count+1; i++)
 	{
-		SetConsoleCursorPosition(hConsole, { (SHORT)((WINDOW_WIDTH - MENU_TEXT_SIZE) / 2 - 1), (SHORT)(start + i)});
+		SetConsoleCursorPosition(hConsole, { (SHORT)startX, (SHORT)(startY + i)});
 		cout << blank;
 	}
 }
 
 void drawMenu(COORD c, COORD defC) {
-	if (getMenuItemsCount() < lastPosition.count) {
-		clearArea(lastPosition.pos, lastPosition.count);
+	if (GetLevelItemsCount(CurrentMenu) < lastPosition.count) {
+		clearArea((WINDOW_WIDTH - MENU_TEXT_SIZE) / 2 - 1, lastPosition.pos, lastPosition.count);
 	}
 	Menu_Item_t* item = CurrentMenu;
 	int count = GetLevelItemsCount(CurrentMenu);
@@ -91,93 +130,126 @@ void drawMenu(COORD c, COORD defC) {
 
 	lastPosition.pos = (WINDOW_HEIGHT - count - 1) / 2;
 	lastPosition.count = menuCount;
-
-	SetConsoleCursorPosition(hConsole, {0, WINDOW_HEIGHT - 1});
-	SetConsoleTextAttribute(hConsole, FOREGROUND_INTENSITY);
+	
+	clearArea(0, WINDOW_HEIGHT - 1, 0);
+	SetConsoleCursorPosition(hConsole, { 0, WINDOW_HEIGHT - 1});
+	SetConsoleTextAttribute(hConsole, 240);
 	wprintf(CurrentMenuItem->Hint);
+	SetConsoleTextAttribute(hConsole, 15);
 }
 
 void exitProgram(Menu_Item_t* current_item) {
+	SetConsoleTextAttribute(hConsole, 15);
 	exit(0);
 }
 
 void addRecord(Menu_Item_t* current_item) {
-	int typeID, userID, price, lifeTime;
+	string typeID, userID, price, lifeTime;
 	wchar_t supplyDate[11];
 	wchar_t description[100];
+	system("cls");
 	drawDeviceTypes(current_item);
-	wprintf(L"Enter type id: ");
-	cin >> typeID;
-	drawUsers(current_item);
-	wprintf(L"Enter user id: ");
-	cin >> userID;
-	wprintf(L"Enter price: ");
-	cin >> price;
-	wprintf(L"Enter life time: ");
-	cin >> lifeTime;
-	wprintf(L"Enter supply date: ");
-	wcin >> supplyDate;
-	wprintf(L"Enter description: ");
-	wcin.getline(description, 100);
-	wcin.getline(description, 100);
-	wchar_t sqlRequest[SQL_QUERY_SIZE] = L"";
-	swprintf(sqlRequest, SQL_QUERY_SIZE, L"INSERT INTO devices ( userID, typeID, price, supplyDate, lifeTime, description) VALUES (%d,%d,%d,\'%ls\',%d,\'%ls\')", userID, typeID, price, supplyDate, lifeTime, description);
-	getTable(sqlRequest, false);
+	wprintf(L"Enter Q to quit\n\nEnter type id: ");
+	getline(cin, typeID);
+	if (typeID == "Q" || typeID == "q") {
+	}
+	else {
+		checkDecimal(typeID);
+		drawUsers(current_item);
+		wprintf(L"Enter user id: ");
+		getline(cin, userID);
+		checkDecimal(userID);
+		wprintf(L"Enter price: ");
+		getline(cin, price);
+		checkDecimal(price);
+		wprintf(L"Enter life time: ");
+		getline(cin, lifeTime);
+		checkDecimal(lifeTime);
+		wprintf(L"Enter supply date(YYYY-MM-DD): ");
+		wcin >> supplyDate;
+		checkDate(supplyDate);
+		wprintf(L"Enter description: ");
+		wcin.getline(description, 100);
+		wcin.getline(description, 100);
+		wchar_t sqlRequest[SQL_QUERY_SIZE] = L"";
+		swprintf(sqlRequest, SQL_QUERY_SIZE, L"INSERT INTO devices ( userID, typeID, price, supplyDate, lifeTime, description) VALUES (%d,%d,%d,\'%ls\',%d,\'%ls\')", stoi(userID), stoi(typeID), stoi(price), supplyDate, stoi(lifeTime), description);
+		getTable(sqlRequest, false);
+	}
 }
 
 void updateRecord(Menu_Item_t* current_item) {
-	int ID, typeID, userID, price, lifeTime;
+	string ID, typeID, userID, price, lifeTime;
 	wchar_t supplyDate[11];
 	wchar_t description[100];
-	wprintf(L"Enter device id: ");
-	cin >> ID;
-	drawDeviceTypes(current_item);
-	wprintf(L"Enter new type id: ");
-	cin >> typeID;
-	drawUsers(current_item);
-	wprintf(L"Enter new user id: ");
-	cin >> userID;
-	wprintf(L"Enter new price: ");
-	cin >> price;
-	wprintf(L"Enter new life time: ");
-	cin >> lifeTime;
-	wprintf(L"Enter new supply date: ");
-	wcin >> supplyDate;
-	wprintf(L"Enter new description: ");
-	wcin.getline(description, 100);
-	wcin.getline(description, 100);
-	wchar_t sqlRequest[SQL_QUERY_SIZE] = L"";
-	swprintf(sqlRequest, SQL_QUERY_SIZE, L"UPDATE devices SET userID=%d, typeID=%d, price=%d, supplyDate=\'%ls\', lifeTime=%d, description=\'%ls\' WHERE ID=%d", userID, typeID, price, supplyDate, lifeTime, description, ID);
-	getTable(sqlRequest, false);
+	system("cls");
+	wprintf(L"Enter Q to quit\n\nEnter device id: ");
+	getline(cin, ID);
+	if (ID == "Q" || ID == "q") {
+
+	}
+	else {
+		checkDecimal(ID);
+		drawDeviceTypes(current_item);
+		wprintf(L"Enter new type id: ");
+		getline(cin, typeID);
+		checkDecimal(typeID);
+		drawUsers(current_item);
+		wprintf(L"Enter new user id: ");
+		getline(cin, userID);
+		checkDecimal(ID);
+		wprintf(L"Enter new price: ");
+		getline(cin, price);
+		checkDecimal(ID);
+		wprintf(L"Enter new life time: ");
+		getline(cin, lifeTime);
+		checkDecimal(ID);
+		wprintf(L"Enter new supply date(YYYY-MM-DD): ");
+		wcin >> supplyDate;
+		checkDate(supplyDate);
+		wprintf(L"Enter new description: ");
+		wcin.getline(description, 100);
+		wcin.getline(description, 100);
+		wchar_t sqlRequest[SQL_QUERY_SIZE] = L"";
+		swprintf(sqlRequest, SQL_QUERY_SIZE, L"UPDATE devices SET userID=%d, typeID=%d, price=%d, supplyDate=\'%ls\', lifeTime=%d, description=\'%ls\' WHERE ID=%d", stoi(userID), stoi(typeID), stoi(price), supplyDate, stoi(lifeTime), description, stoi(ID));
+		getTable(sqlRequest, false);
+	}
 }
 
 void deleteRecord(Menu_Item_t* current_item) {
-	int ID;
-	wprintf(L"Enter device id: ");
+	SQLWCHAR sqlRequestPrint[SQL_QUERY_SIZE] = L"SELECT devices.id, users.name AS user, devicetypes.name AS `device type`, Devices.price, Devices.supplyDate, Devices.lifeTime, Devices.description FROM Devices INNER JOIN users ON devices.userID=users.id INNER JOIN devicetypes ON devices.typeID=devicetypes.id";
+	getTable(sqlRequestPrint, false);
+	string ID = "";
+	wprintf(L"Enter Q to quit\n\nEnter device id: ");
 	cin >> ID;
-	wchar_t sqlRequest[SQL_QUERY_SIZE] = L"";
-	swprintf(sqlRequest, SQL_QUERY_SIZE, L"DELETE FROM devices WHERE ID = %d", ID);
-	getTable(sqlRequest, false);
+	cin.get();
+		if (checkDecimal(ID)) {}
+		else {
+			wchar_t sqlRequestDelete[SQL_QUERY_SIZE] = L"";
+			swprintf(sqlRequestDelete, SQL_QUERY_SIZE, L"DELETE FROM devices WHERE ID = %d", stoi(ID));
+			if (getTable(sqlRequestDelete, false) == 0) {
+				wprintf(L"Deleting success\nPress ESC to quit");
+				wait();
+			}
+		}
 }
 
 void drawDevices(Menu_Item_t* current_item) {
 	SQLWCHAR sqlRequest[SQL_QUERY_SIZE] = L"SELECT devices.id, users.name AS user, devicetypes.name AS `device type`, Devices.price, Devices.supplyDate, Devices.lifeTime, Devices.description FROM Devices INNER JOIN users ON devices.userID=users.id INNER JOIN devicetypes ON devices.typeID=devicetypes.id";
 	int currkey, extkey;
 	bool exit = false;
+	system("cls");
+	getTable(sqlRequest, false);
+	SetConsoleCursorPosition(hConsole, { 0, WINDOW_HEIGHT - 1 });
+	SetConsoleTextAttribute(hConsole, 240);
+	wprintf(L" F4 - add new record | F5 - update existed record (by id) | F6 - delete record (by id) ");
+	SetConsoleTextAttribute(hConsole, 15);
+	SetConsoleCursorPosition(hConsole, { 0, 0 });
 	while (!exit) {
-		system("cls");
-		getTable(sqlRequest, false);
-		SetConsoleCursorPosition(hConsole, { 0, 48 });
-		SetConsoleTextAttribute(hConsole, 240);
-		wprintf(L" F4 - add new record | F5 - update existed record (by id) | F6 - delete record (by id) ");
-		SetConsoleTextAttribute(hConsole, 15);
-		SetConsoleCursorPosition(hConsole, { 0, 0 });
 		currkey = _getch();
 		switch (currkey) {
 			case 0:
 			{
 				extkey = _getch();
-				system("cls");
 				switch (extkey) {
 					case 62:
 					{
@@ -195,6 +267,7 @@ void drawDevices(Menu_Item_t* current_item) {
 						break;
 					}
 				}
+				exit = true;
 				break;
 			}
 			case 13:
@@ -207,7 +280,6 @@ void drawDevices(Menu_Item_t* current_item) {
 				exit = true;
 				break;
 			}
-			
 		}
 	}
 	system("cls");
@@ -287,7 +359,6 @@ void drawAbout(Menu_Item_t* current_item) {
 int main()
 {
 	setlocale(LC_ALL, "rus_rus.866");
-	perror("setlocale");
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTitle(L"My Program");
 	CONSOLE_SCREEN_BUFFER_INFOEX consolesize;
@@ -346,40 +417,3 @@ int main()
 	}
 	
 }
-
-/*
-up 72
-down 80
-enter 13
-esc 27
-*/
-
-/*
-____________________$$$$$$$$$$
-_________________$$$__________$$$
-_______________$$________________$$__________$$$
-____________$$$____________________$$_______$_$_$
-__$$$______$$$$____________$$$$$$$$__$_____$_$__$
-_$__$$____$____$$$_$____$$$$$$________$___$__$__$
-$___$_$_$$$________$___$$$_____________$_$___$$$
-$__$__$$$$$__$$$$__$________$$$$$$______$$_$$$
-_$$$$$$$$_$_$$$$_$_$______$$$$$$__$_______$
-_________$__$$$$$$$_$$$$__$$$$$$$$$_______$
-________$________$$$____$$$$______________$
-_______$_______$$___________$$____________$
-______$_______$_______________$___________$
-______$______$_$$$$_____$$$$$$_____________$
-_____$_____$$______$$$$$______$$$__________$
-_____$____$________$___$_________$$$________$
-_____$___$__$_____$___$_____________$_______$
-_____$_______$$$$$$$$$$$$$$$$$$$$$__________$
-_____$______________________________________$
-______$________$$$$$$$$$$$$$$_______________$
-______$____________$$$$$$___________________$$
-_______$______________________________________$
-___$$$$$$______________________________________$
-$$$______$_____________________________________$
-__________$$_______________________$$___________$
-____________$$$__________________$$_____________$
-_______________$$$$$$$$$$$$$$$$$$
-*/

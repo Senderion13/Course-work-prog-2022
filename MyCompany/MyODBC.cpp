@@ -1,17 +1,7 @@
-/*******************************************************************************
-/* ODBCSQL: a sample program that implements an ODBC command line interpreter.
-/*
-/* USAGE:   ODBCSQL DSN=<dsn name>   or
-/*          ODBCSQL FILEDSN=<file dsn> or
-/*          ODBCSQL DRIVER={driver name}
-/*
-/*
-/* Copyright(c)  Microsoft Corporation.   This is a WDAC sample program and
-/* is not suitable for use in production environments.
-/*
 /******************************************************************************/
 /* Modules:
 /*      Main                Main driver loop, executes queries.
+/*      SaveResults         Save the results of the query in html file
 /*      DisplayResults      Display the results of the query if any
 /*      AllocateBindings    Bind column data
 /*      DisplayTitles       Print column titles
@@ -31,7 +21,6 @@
 #include <fstream>
 #include <time.h>
 #include <string>
-#include <codecvt>
 
 
 /*******************************************/
@@ -58,10 +47,10 @@
 
 typedef struct STR_BINDING {
     SQLSMALLINT         cDisplaySize;           /* size to display  */
-    WCHAR*              wszBuffer;             /* display buffer   */
+    WCHAR*              wszBuffer;              /* display buffer   */
     SQLLEN              indPtr;                 /* size or null     */
     BOOL                fChar;                  /* character col?   */
-    struct STR_BINDING* sNext;                 /* linked list      */
+    struct STR_BINDING* sNext;                  /* linked list      */
 } BINDING;
 
 HANDLE hConsole;
@@ -203,9 +192,7 @@ int __cdecl getTable(SQLWCHAR* wszInput, bool createFile)
 
                 if (cRowCount >= 0)
                 {
-                    wprintf(L"%Id %s affected\n",
-                        cRowCount,
-                        cRowCount == 1 ? L"row" : L"rows");
+                    
                 }
             }
             break;

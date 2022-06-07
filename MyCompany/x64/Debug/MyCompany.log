@@ -1,8 +1,10 @@
 ﻿  MyCompany.cpp
   The contents of <format> are available only in c++latest mode with concepts support;
   see https://github.com/microsoft/STL/issues/1814 for details.
-C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyODBC.cpp(270,30): warning C4244: инициализация: преобразование "time_t" в "int", возможна потеря данных
-C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyODBC.cpp(664,37): warning C4101: csbInfo: неиспользованная локальная переменная
-C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyCompany.cpp(49,36): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-C:\Users\Andrey\Desktop\MyCompany\MyCompany\MyCompany.cpp(234,40): warning C4129: `: неизвестная escape-последовательность
-  MyCompany.vcxproj -> C:\Users\Andrey\Desktop\MyCompany\x64\Debug\MyCompany.exe
+E:\Projects\Course-work-prog-2022\MyCompany\MyODBC.cpp(258,30): warning C4244: инициализация: преобразование "time_t" в "int", возможна потеря данных
+E:\Projects\Course-work-prog-2022\MyCompany\MyODBC.cpp(655,37): warning C4101: csbInfo: неиспользованная локальная переменная
+E:\Projects\Course-work-prog-2022\MyCompany\MyCompany.cpp(38,8): warning C4834: отмена возвращаемого значения функции с атрибутом "nodiscard"
+E:\Projects\Course-work-prog-2022\MyCompany\MyCompany.cpp(116,36): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+E:\Projects\Course-work-prog-2022\MyCompany\MyCompany.cpp(332,40): warning C4129: `: неизвестная escape-последовательность
+E:\Projects\Course-work-prog-2022\MyCompany\MyCompany.cpp(47): warning C4715: checkDecimal: значение возвращается не при всех путях выполнения
+  MyCompany.vcxproj -> E:\Projects\Course-work-prog-2022\x64\Debug\MyCompany.exe
